@@ -6,3 +6,4 @@ pydantic
 streamlit
 requests
 google-genai
+python-dotenv
