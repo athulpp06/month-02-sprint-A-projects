@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# ChromaDB / Local vector database persistent files
+chroma_db/
+*.sqlite3
