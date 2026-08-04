@@ -11,3 +11,6 @@ env/
 # Database files
 chroma_db/
 *.sqlite3
+
+# Environment variables
+.env
