@@ -1,9 +1,13 @@
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
-venv/
-.env
+*$py.class
 
-# ChromaDB / Local vector database persistent files
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Database files
 chroma_db/
 *.sqlite3
