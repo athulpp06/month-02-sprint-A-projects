@@ -2,11 +2,16 @@
 
 A semantic search engine built for Month 02 Sprint A. It allows users to ingest text documents, search through them by meaning, and generate intelligent answers using a Retrieval-Augmented Generation (RAG) pipeline powered by Gemini.
 
+## Live Demo
+
+- **Backend API Docs (Swagger UI):** `https://<your-render-service>.onrender.com/docs`
+- **Streamlit Frontend App:** `https://<your-streamlit-app>.streamlit.app`
+
 ## Tech Stack
 
 * **Backend:** FastAPI
 * **Vector Database:** ChromaDB
-* **Embeddings:** all-MiniLM-L6-v2 (via sentence-transformers)
+* **Embeddings:** all-MiniLM-L6-v2 (ChromaDB ONNX DefaultEmbeddingFunction)
 * **LLM Engine:** Gemini (google-genai)
 * **Frontend:** Streamlit
 

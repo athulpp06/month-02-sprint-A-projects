@@ -49,9 +49,7 @@ SEED_DATA = [
 
 # 4. Initialize ChromaDB client and Embedding Model
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
-embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="all-MiniLM-L6-v2"
-)
+embedding_function = embedding_functions.DefaultEmbeddingFunction()
 collection = chroma_client.get_or_create_collection(
     name="semantic_sprint_collection",
     embedding_function=embedding_function
