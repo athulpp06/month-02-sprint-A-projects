@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 import chromadb
 from chromadb.utils import embedding_functions
 from google import genai
@@ -76,6 +77,10 @@ app = FastAPI(
 )
 
 # --- Endpoints ---
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/docs")
 
 @app.post("/ingest", summary="Add a document to the vector database")
 async def ingest_item(item: Item):
