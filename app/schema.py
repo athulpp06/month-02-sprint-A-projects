@@ -7,5 +7,9 @@ class Item(BaseModel):
     metadata: Optional[Dict[str, Any]] = Field(default={}, description="Optional metadata tags")
 
 class SearchQuery(BaseModel):
-    query_text: str = Field(..., description="The semantic search query text")
+    query_text: Optional[str] = Field(default=None, description="The semantic search query text")
+    query: Optional[str] = Field(default=None, description="Alternative alias for query text")
     limit: int = Field(default=5, ge=1, le=50, description="Number of results to return (1-50)")
+
+    def get_query_text(self) -> str:
+        return self.query_text or self.query or ""

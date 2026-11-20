@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 import chromadb
@@ -47,7 +48,7 @@ SEED_DATA = [
 ]
 
 # 4. Initialize ChromaDB client and Embedding Model
-chroma_client = chromadb.Client()
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
 embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="all-MiniLM-L6-v2"
 )
@@ -81,7 +82,7 @@ app = FastAPI(
 @app.post("/ingest", summary="Add a document to the vector database")
 async def ingest_item(item: Item):
     try:
-        collection.add(
+        collection.upsert(
             documents=[item.content],
             metadatas=[item.metadata] if item.metadata else [{}],
             ids=[item.id]
@@ -92,9 +93,12 @@ async def ingest_item(item: Item):
 
 @app.post("/search", summary="Perform a semantic search")
 async def semantic_search(query: SearchQuery):
+    search_str = query.get_query_text() if hasattr(query, "get_query_text") else (query.query_text or getattr(query, "query", ""))
+    if not search_str:
+        raise HTTPException(status_code=400, detail="Query text cannot be empty.")
     try:
         results = collection.query(
-            query_texts=[query.query_text],
+            query_texts=[search_str],
             n_results=query.limit
         )
         
@@ -110,21 +114,36 @@ async def semantic_search(query: SearchQuery):
 
         return {
             "status": "success", 
-            "query": query.query_text,
+            "query": search_str,
             "matches": formatted_results
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/search", summary="Perform a semantic search (GET)")
+async def semantic_search_get(
+    query: Optional[str] = None, 
+    query_text: Optional[str] = None, 
+    limit: int = 5
+):
+    search_str = query_text or query
+    if not search_str:
+        raise HTTPException(status_code=400, detail="Query parameter 'query' or 'query_text' is required.")
+    return await semantic_search(SearchQuery(query_text=search_str, limit=limit))
 
 @app.post("/ask", summary="Perform Semantic Search + LLM Answer (RAG)")
 async def ask_rag(query: SearchQuery):
     if not genai_client:
         raise HTTPException(status_code=500, detail="Gemini API Key not configured on server.")
         
+    search_str = query.get_query_text() if hasattr(query, "get_query_text") else (query.query_text or getattr(query, "query", ""))
+    if not search_str:
+        raise HTTPException(status_code=400, detail="Query text cannot be empty.")
+        
     try:
         # Step A: Retrieve relevant context from ChromaDB
         search_results = collection.query(
-            query_texts=[query.query_text],
+            query_texts=[search_str],
             n_results=3
         )
         
